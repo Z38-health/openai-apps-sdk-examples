@@ -1,10 +1,8 @@
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { App, type CartItem, type PizzazShopAppProps } from "../pizzaz-shop/app";
+import { App, type PizzazShopAppProps } from "../pizzaz-shop/app";
 
-export type EcommerceAppProps = Omit<PizzazShopAppProps, "defaultCartItems"> & {
-  defaultCartItems?: CartItem[];
-};
+export type EcommerceAppProps = PizzazShopAppProps;
 
 const container = document.getElementById("ecommerce-root");
 
@@ -14,7 +12,7 @@ if (!container) {
 
 createRoot(container).render(
   <BrowserRouter>
-    <App defaultCartItems={[]} />
+    <App />
   </BrowserRouter>
 );
 

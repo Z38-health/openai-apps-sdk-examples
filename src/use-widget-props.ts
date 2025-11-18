@@ -4,7 +4,7 @@ import type { ToolResponseEnvelope } from "./types";
 export function useWidgetProps<T extends Record<string, unknown>>(
   defaultState?: T | (() => T)
 ): T {
-  const toolResponse = useOpenAiGlobal("toolResponse") as
+  const toolResponse = useOpenAiGlobal("toolOutput") as
     | ToolResponseEnvelope<T>
     | null;
   const structuredContent =

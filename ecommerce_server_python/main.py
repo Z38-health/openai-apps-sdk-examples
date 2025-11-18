@@ -64,6 +64,10 @@ ECOMMERCE_SAMPLE_DATA_PATH = (
     / "ecommerce_server_python"
     / "sample_data.json"
 )
+MATCHA_PIZZA_IMAGE = "https://persistent.oaistatic.com/pizzaz-cart-xl/matcha-pizza.png"
+DEFAULT_CART_ITEMS: List[Dict[str, Any]] = [
+    {"id": "matcha-pizza", "image": MATCHA_PIZZA_IMAGE, "quantity": 1}
+]
 
 
 @lru_cache(maxsize=None)
@@ -85,19 +89,43 @@ def _load_widget_html(component_name: str) -> str:
 @lru_cache(maxsize=1)
 def _load_ecommerce_cart_items() -> List[Dict[str, Any]]:
     if not ECOMMERCE_SAMPLE_DATA_PATH.exists():
-        return []
+        return [deepcopy(item) for item in DEFAULT_CART_ITEMS]
 
     try:
         raw = json.loads(ECOMMERCE_SAMPLE_DATA_PATH.read_text(encoding="utf8"))
     except json.JSONDecodeError:
-        return []
+        return [deepcopy(item) for item in DEFAULT_CART_ITEMS]
 
     items: List[Dict[str, Any]] = []
     for entry in raw.get("products", []):
-        if isinstance(entry, dict):
-            items.append(entry)
+        if not isinstance(entry, dict):
+            continue
+        sanitized = _sanitize_cart_item(entry)
+        if sanitized:
+            items.append(sanitized)
 
-    return items
+    return items or [deepcopy(item) for item in DEFAULT_CART_ITEMS]
+
+
+def _sanitize_cart_item(entry: Dict[str, Any]) -> Dict[str, Any] | None:
+    identifier = str(entry.get("id", "")).strip()
+    if not identifier:
+        return None
+
+    image_candidate = str(entry.get("image", "")).strip()
+    image = image_candidate or MATCHA_PIZZA_IMAGE
+
+    quantity_raw = entry.get("quantity", 0)
+    try:
+        quantity = int(quantity_raw)
+    except (TypeError, ValueError):
+        quantity = 0
+
+    return {
+        "id": identifier,
+        "image": image,
+        "quantity": max(0, quantity),
+    }
 
 
 def _product_matches_search(item: Dict[str, Any], search_term: str) -> bool:
@@ -106,33 +134,8 @@ def _product_matches_search(item: Dict[str, Any], search_term: str) -> bool:
     if not term:
         return True
 
-    def _contains_text(value: Any) -> bool:
-        return isinstance(value, str) and term in value.lower()
-
-    searchable_fields = (
-        "name",
-        "description",
-        "shortDescription",
-        "detailSummary",
-    )
-
-    for field in searchable_fields:
-        if _contains_text(item.get(field)):
-            return True
-
-    tags = item.get("tags")
-    if isinstance(tags, list):
-        for tag in tags:
-            if _contains_text(tag):
-                return True
-
-    highlights = item.get("highlights")
-    if isinstance(highlights, list):
-        for highlight in highlights:
-            if _contains_text(highlight):
-                return True
-
-    return False
+    identifier = str(item.get("id", "")).lower()
+    return term in identifier
 
 
 ECOMMERCE_WIDGET = PizzazWidget(
@@ -157,7 +160,7 @@ SEARCH_TOOL_SCHEMA: Dict[str, Any] = {
     "properties": {
         "searchTerm": {
             "type": "string",
-            "description": "Free-text keywords to filter products by name, description, tags, or highlights.",
+            "description": "Optional text to match against the product ID (only the Matcha Pizza item is available).",
         },
     },
     "required": [],
@@ -222,14 +225,6 @@ INCREMENT_TOOL_SECURITY_SCHEMES = [
 mcp = FastMCP(
     name="pizzaz-python",
     stateless_http=True,
-    # # Token verifier for authentication
-    # token_verifier=SimpleTokenVerifier(required_scopes=["cart.write"]),
-    # # Auth settings for RFC 9728 Protected Resource Metadata
-    # auth=AuthSettings(
-    #     issuer_url=AnyHttpUrl("https://dev-65wmmp5d56ev40iy.us.auth0.com/"),  # Authorization Server URL
-    #     resource_server_url=AnyHttpUrl("https://5fb2bf13c559.ngrok-free.app"),  # This server's URL
-    #     required_scopes=["cart.write"],
-    # ),
 )
 
 
@@ -265,6 +260,7 @@ def _tool_invocation_meta(widget: PizzazWidget) -> Dict[str, Any]:
     return {
         "openai/toolInvocation/invoking": widget.invoking,
         "openai/toolInvocation/invoked": widget.invoked,
+        "openai/widgetSessionId": "ren-test-session-id",
     }
 
 
@@ -491,6 +487,7 @@ async def _call_tool_request(req: types.CallToolRequest) -> types.ServerResult:
         structured_content: Dict[str, Any] = {
             "cartItems": filtered_items,
             "searchTerm": search_term,
+            "toolCallName": SEARCH_TOOL_NAME,
         }
         response_text = ECOMMERCE_WIDGET.response_text
     else:
@@ -566,11 +563,8 @@ async def _call_tool_request(req: types.CallToolRequest) -> types.ServerResult:
             current_quantity = 0
         product["quantity"] = current_quantity + increment_by
 
-        structured_content = {
-            "cartItems": cart_items,
-            "searchTerm": "",
-        }
-        product_name = product.get("name", product_id)
+        structured_content = {"toolCallName": INCREMENT_TOOL_NAME}
+        product_name = product.get("id", product_id)
         response_text = (
             f"Incremented {product_name} by {increment_by}. Updated cart ready."
         )
