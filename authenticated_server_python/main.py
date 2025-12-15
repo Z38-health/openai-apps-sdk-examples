@@ -46,30 +46,30 @@ def _load_widget_html(component_name: str) -> str:
     )
 
 
-CAROUSEL_WIDGET = PizzazWidget(
-    identifier="pizza-carousel",
+SEARCH_WIDGET = PizzazWidget(
+    identifier="search_pizza_sf",
     title="Show pizza spots",
-    template_uri="ui://widget/pizza-carousel.html",
-    invoking="Carousel some spots",
-    invoked="Served a fresh carousel",
-    html=_load_widget_html("pizzaz-carousel"),
-    response_text="Rendered a pizza carousel!",
+    template_uri="ui://widget/mixed-auth-search.html",
+    invoking="Searching pizza spots in San Francisco",
+    invoked="Served SF pizza search results",
+    html=_load_widget_html("mixed-auth-search"),
+    response_text="Rendered SF pizza search results!",
 )
 
 PAST_ORDERS_WIDGET = PizzazWidget(
-    identifier="pizzaz-list",
+    identifier="mixed-auth-past-orders",
     title="Past orders",
-    template_uri="ui://widget/pizzaz-list.html",
+    template_uri="ui://widget/mixed-auth-past-orders.html",
     invoking="Fetching your recent orders",
     invoked="Served recent orders",
-    html=_load_widget_html("pizzaz-list"),
+    html=_load_widget_html("mixed-auth-past-orders"),
     response_text="Rendered past orders list!",
 )
 
 
 MIME_TYPE = "text/html+skybridge"
 
-SEARCH_TOOL_NAME = CAROUSEL_WIDGET.identifier
+SEARCH_TOOL_NAME = SEARCH_WIDGET.identifier
 PAST_ORDERS_TOOL_NAME = "see_past_orders"
 
 SEARCH_TOOL_SCHEMA: Dict[str, Any] = {
@@ -103,27 +103,39 @@ PAST_ORDERS_TOOL_SCHEMA: Dict[str, Any] = {
 PAST_ORDERS_DATA = [
     {
         "orderId": "pz-4931",
+        "restaurantName": "Nova Slice Lab",
         "items": ["Classic Margherita", "Garlic knots"],
         "status": "delivered",
         "total": "$18.50",
+        "placedAt": "Today, 7:18 PM",
+        "location": "North Beach",
     },
     {
         "orderId": "pz-4810",
-        "items": ["Pepperoni Feast"],
+        "restaurantName": "Midnight Marinara",
+        "items": ["Pepperoni Feast", "Basil soda"],
         "status": "delivered",
-        "total": "$15.00",
+        "total": "$21.00",
+        "placedAt": "Aug 28, 6:02 PM",
+        "location": "Mission",
     },
     {
         "orderId": "pz-4799",
+        "restaurantName": "Cinder Oven Co.",
         "items": ["Veggie Garden", "Caesar salad"],
         "status": "refunded",
         "total": "$22.40",
+        "placedAt": "Aug 19, 8:11 PM",
+        "location": "Nob Hill",
     },
     {
         "orderId": "pz-4750",
+        "restaurantName": "Neon Crust Works",
         "items": ["Spicy Hawaiian"],
         "status": "delivered",
         "total": "$17.25",
+        "placedAt": "Aug 12, 7:45 PM",
+        "location": "SoMa",
     },
 ]
 
@@ -173,25 +185,13 @@ mcp = FastMCP(
 )
 
 
-def _resource_metadata_url() -> str | None:
-    auth_config = getattr(mcp.settings, "auth", None)
-    if auth_config and auth_config.resource_server_url:
-        parsed = urlparse(str(auth_config.resource_server_url))
-        resource_path = parsed.path if parsed.path not in ("", "/") else ""
-        return f"{parsed.scheme}://{parsed.netloc}/.well-known/oauth-protected-resource{resource_path}"
-    print("PROTECTED_RESOURCE_METADATA_URL", PROTECTED_RESOURCE_METADATA_URL)
-    return PROTECTED_RESOURCE_METADATA_URL
-
-
 def _build_www_authenticate_value(error: str, description: str) -> str:
     safe_error = error.replace('"', r"\"")
     safe_description = description.replace('"', r"\"")
     parts = [
         f'error="{safe_error}"error_description="{safe_description}"',
     ]
-    resource_metadata = _resource_metadata_url()
-    if resource_metadata:
-        parts.append(f'resource_metadata="{resource_metadata}"')
+    parts.append(f'resource_metadata="{PROTECTED_RESOURCE_METADATA_URL}"')
     return f"Bearer {', '.join(parts)}"
 
 
@@ -325,13 +325,15 @@ def _tool_error(message: str) -> types.ServerResult:
 
 @mcp._mcp_server.list_tools()
 async def _list_tools() -> List[types.Tool]:
-    tool_meta = _tool_meta(CAROUSEL_WIDGET, MIXED_TOOL_SECURITY_SCHEMES)
+    tool_meta = _tool_meta(SEARCH_WIDGET, MIXED_TOOL_SECURITY_SCHEMES)
     past_orders_meta = _tool_meta(PAST_ORDERS_WIDGET, OAUTH_ONLY_SECURITY_SCHEMES)
     return [
         types.Tool(
             name=SEARCH_TOOL_NAME,
-            title=CAROUSEL_WIDGET.title,
-            description="Echo the provided search terms.",
+            title=SEARCH_WIDGET.title,
+            description=(
+                "Search for pizza shops in San Francisco (optionally filter by toppings)."
+            ),
             inputSchema=SEARCH_TOOL_SCHEMA,
             _meta=tool_meta,
             securitySchemes=list(MIXED_TOOL_SECURITY_SCHEMES),
@@ -362,12 +364,12 @@ async def _list_tools() -> List[types.Tool]:
 async def _list_resources() -> List[types.Resource]:
     return [
         types.Resource(
-            name=CAROUSEL_WIDGET.title,
-            title=CAROUSEL_WIDGET.title,
-            uri=CAROUSEL_WIDGET.template_uri,
-            description=_resource_description(CAROUSEL_WIDGET),
+            name=SEARCH_WIDGET.title,
+            title=SEARCH_WIDGET.title,
+            uri=SEARCH_WIDGET.template_uri,
+            description=_resource_description(SEARCH_WIDGET),
             mimeType=MIME_TYPE,
-            _meta=_tool_meta(CAROUSEL_WIDGET),
+            _meta=_tool_meta(SEARCH_WIDGET),
         ),
         types.Resource(
             name=PAST_ORDERS_WIDGET.title,
@@ -384,12 +386,12 @@ async def _list_resources() -> List[types.Resource]:
 async def _list_resource_templates() -> List[types.ResourceTemplate]:
     return [
         types.ResourceTemplate(
-            name=CAROUSEL_WIDGET.title,
-            title=CAROUSEL_WIDGET.title,
-            uriTemplate=CAROUSEL_WIDGET.template_uri,
-            description=_resource_description(CAROUSEL_WIDGET),
+            name=SEARCH_WIDGET.title,
+            title=SEARCH_WIDGET.title,
+            uriTemplate=SEARCH_WIDGET.template_uri,
+            description=_resource_description(SEARCH_WIDGET),
             mimeType=MIME_TYPE,
-            _meta=_tool_meta(CAROUSEL_WIDGET),
+            _meta=_tool_meta(SEARCH_WIDGET),
         ),
         types.ResourceTemplate(
             name=PAST_ORDERS_WIDGET.title,
@@ -405,7 +407,7 @@ async def _list_resource_templates() -> List[types.ResourceTemplate]:
 async def _handle_read_resource(req: types.ReadResourceRequest) -> types.ServerResult:
     requested_uri = str(req.params.uri)
     if requested_uri not in {
-        CAROUSEL_WIDGET.template_uri,
+        SEARCH_WIDGET.template_uri,
         PAST_ORDERS_WIDGET.template_uri,
     }:
         return types.ServerResult(
@@ -416,8 +418,8 @@ async def _handle_read_resource(req: types.ReadResourceRequest) -> types.ServerR
         )
 
     widget = (
-        CAROUSEL_WIDGET
-        if requested_uri == CAROUSEL_WIDGET.template_uri
+        SEARCH_WIDGET
+        if requested_uri == SEARCH_WIDGET.template_uri
         else PAST_ORDERS_WIDGET
     )
 
@@ -439,14 +441,14 @@ async def _call_tool_request(req: types.CallToolRequest) -> types.ServerResult:
     arguments = req.params.arguments or {}
 
     if tool_name == SEARCH_TOOL_NAME:
-        meta = _tool_invocation_meta(CAROUSEL_WIDGET)
+        meta = _tool_invocation_meta(SEARCH_WIDGET)
         topping = str(arguments.get("searchTerm", "")).strip()
         return types.ServerResult(
             types.CallToolResult(
                 content=[
                     types.TextContent(
                         type="text",
-                        text="Rendered a pizza carousel!",
+                        text="Rendered SF pizza search results!",
                     )
                 ],
                 structuredContent={"pizzaTopping": topping},
