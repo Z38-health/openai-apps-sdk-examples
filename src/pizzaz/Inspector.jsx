@@ -1,6 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Star, X } from "lucide-react";
+import { Button } from "@openai/apps-sdk-ui/components/Button";
+import { Image } from "@openai/apps-sdk-ui/components/Image";
 
 export default function Inspector({ place, onClose }) {
   if (!place) return null;
@@ -13,16 +15,20 @@ export default function Inspector({ place, onClose }) {
       transition={{ type: "spring", bounce: 0, duration: 0.25 }}
       className="pizzaz-inspector absolute z-30 top-0 bottom-4 left-0 right-auto xl:left-auto xl:right-6 md:z-20 w-[340px] xl:w-[360px] xl:top-6 xl:bottom-8 pointer-events-auto"
     >
-      <button
+      <Button
         aria-label="Close details"
         className="inline-flex absolute z-10 top-4 left-4 xl:top-4 xl:left-4 shadow-xl rounded-full p-2 bg-white ring ring-black/10 xl:shadow-2xl hover:bg-white"
+        variant="soft"
+        color="secondary"
+        size="sm"
+        uniform
         onClick={onClose}
       >
         <X className="h-[18px] w-[18px]" aria-hidden="true" />
-      </button>
+      </Button>
       <div className="relative h-full overflow-y-auto rounded-none xl:rounded-3xl bg-white text-black xl:shadow-xl xl:ring ring-black/10">
         <div className="relative mt-2 xl:mt-0 px-2 xl:px-0">
-          <img
+          <Image
             src={place.thumbnail}
             alt={place.name}
             className="w-full rounded-3xl xl:rounded-none h-80 object-cover xl:rounded-t-2xl"
@@ -39,12 +45,18 @@ export default function Inspector({ place, onClose }) {
               <span>· San Francisco</span>
             </div>
             <div className="mt-3 flex flex-row items-center gap-3 font-medium">
-              <div className="rounded-full bg-[#F46C21] text-white cursor-pointer px-4 py-1.5">
+              <Button color="primary" variant="solid" size="sm">
+                {" "}
                 Add to favorites
-              </div>
-              <div className="rounded-full border border-[#F46C21]/50 text-[#F46C21] cursor-pointer  px-4 py-1.5">
+              </Button>
+              <Button
+                color="primary"
+                variant="outline"
+                size="sm"
+                className="border-[#F46C21]/50 text-[#F46C21]"
+              >
                 Contact
-              </div>
+              </Button>
             </div>
             <div className="text-sm mt-5">
               {place.description} Enjoy a slice at one of SF's favorites. Fresh
@@ -74,7 +86,7 @@ export default function Inspector({ place, onClose }) {
               ].map((review, idx) => (
                 <li key={idx} className="py-3">
                   <div className="flex items-start gap-3">
-                    <img
+                    <Image
                       src={review.avatar}
                       alt={`${review.user} avatar`}
                       className="h-8 w-8 ring ring-black/5 rounded-full object-cover flex-none"

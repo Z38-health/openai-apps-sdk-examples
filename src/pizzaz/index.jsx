@@ -17,6 +17,7 @@ import {
   BrowserRouter,
   Outlet,
 } from "react-router-dom";
+import { Button } from "@openai/apps-sdk-ui/components/Button";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiZXJpY25pbmciLCJhIjoiY21icXlubWM1MDRiczJvb2xwM2p0amNyayJ9.n-3O6JI5nOp_Lw96ZO5vJQ";
@@ -191,9 +192,13 @@ export default function App() {
       >
         <Outlet />
         {displayMode !== "fullscreen" && (
-          <button
+          <Button
             aria-label="Enter fullscreen"
-            className="absolute top-4 right-4 z-30 rounded-full bg-white text-black shadow-lg ring ring-black/5 p-2.5 pointer-events-auto"
+            className="absolute top-4 right-4 z-30 shadow-lg pointer-events-auto bg-white text-black"
+            color="secondary"
+            size="sm"
+            variant="soft"
+            uniform
             onClick={() => {
               if (selectedId) {
                 navigate("..", { replace: true });
@@ -208,7 +213,7 @@ export default function App() {
               className="h-4.5 w-4.5"
               aria-hidden="true"
             />
-          </button>
+          </Button>
         )}
         {/* Sidebar */}
         <Sidebar
@@ -256,12 +261,15 @@ export default function App() {
         <div className="hidden antialiased md:flex absolute inset-x-0 bottom-2 z-30 justify-center pointer-events-none">
           <div className="flex gap-3 pointer-events-auto">
             {["Open now", "Top rated", "Vegetarian friendly"].map((label) => (
-              <button
+              <Button
                 key={label}
-                className="rounded-full font-base bg-white ring ring-black/10 text-black px-4 py-1.5 text-sm hover:bg-[#f7f7f7] cursor-pointer"
+                color="secondary"
+                variant="soft"
+                size="sm"
+                className="font-base"
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

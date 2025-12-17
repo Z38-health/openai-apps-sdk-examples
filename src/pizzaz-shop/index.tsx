@@ -18,6 +18,9 @@ import { useOpenAiGlobal } from "../use-openai-global";
 import { useWidgetProps } from "../use-widget-props";
 import { useWidgetState } from "../use-widget-state";
 
+import { Button } from "@openai/apps-sdk-ui/components/Button";
+import { Image } from "@openai/apps-sdk-ui/components/Image";
+
 type NutritionFact = {
   label: string;
   value: string;
@@ -296,7 +299,7 @@ function SelectedCartItemPanel({
     <div className="space-y-4">
       <div className="overflow-hidden rounded-none border-b border-black/5 bg-white">
         <div className="relative flex items-center justify-center overflow-hidden">
-          <img
+          <Image
             src={item.image}
             alt={item.name}
             className="max-h-[320px] w-[80%] object-cover"
@@ -314,9 +317,12 @@ function SelectedCartItemPanel({
             <h2 className="text-base text-black">{item.name}</h2>
           </div>
           <div className="flex items-center rounded-full bg-black/[0.04] px-1 py-1 text-black">
-            <button
+            <Button
               type="button"
-              className="flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-slate-200"
+              variant="ghost"
+              color="secondary"
+              size="xs"
+              uniform
               aria-label={`Decrease quantity of ${item.name}`}
               onClick={() => onAdjustQuantity(item.id, -1)}
             >
@@ -325,13 +331,16 @@ function SelectedCartItemPanel({
                 className="h-3.5 w-3.5"
                 aria-hidden="true"
               />
-            </button>
+            </Button>
             <span className="mx-2 min-w-[10px] text-center text-base font-medium">
               {item.quantity}
             </span>
-            <button
+            <Button
               type="button"
-              className="flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-slate-200"
+              variant="ghost"
+              color="secondary"
+              size="xs"
+              uniform
               aria-label={`Increase quantity of ${item.name}`}
               onClick={() => onAdjustQuantity(item.id, 1)}
             >
@@ -340,7 +349,7 @@ function SelectedCartItemPanel({
                 className="h-3.5 w-3.5"
                 aria-hidden="true"
               />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -433,30 +442,42 @@ function CheckoutDetailsPanel({
           <p className="text-xs text-black/50">100% goes to the shopper</p>
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <button
+          <Button
             type="button"
-            className="flex-1 rounded-full bg-black/5 py-2.25 text-slate-600"
+            variant="soft"
+            color="secondary"
+            size="sm"
+            className="flex-1"
           >
             5%
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="flex-1 rounded-full bg-black py-2.25 font-medium text-white"
+            variant="solid"
+            color="primary"
+            size="sm"
+            className="flex-1"
           >
             10%
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="flex-1 rounded-full bg-black/5 py-2.25 text-slate-600"
+            variant="soft"
+            color="secondary"
+            size="sm"
+            className="flex-1"
           >
             15%
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="flex-1 rounded-full bg-black/5 py-2.25 text-slate-600"
+            variant="soft"
+            color="secondary"
+            size="sm"
+            className="flex-1"
           >
             Other
-          </button>
+          </Button>
         </div>
       </section>
 
@@ -472,13 +493,17 @@ function CheckoutDetailsPanel({
           </span>
         </div>
         <p className="mt-3 mb-4 border-b border-black/5 text-xs text-black/50"></p>
-        <button
+        <Button
           type="button"
-          className="mx-auto w-full max-w-xs cursor-pointer rounded-full bg-[#FF5100] px-10 py-2 font-medium text-white transition-colors hover:bg-[#FF5100]"
+          color="primary"
+          variant="solid"
+          size="md"
+          className="mx-auto w-full max-w-xs"
+          block
           onClick={onContinueToPayment}
         >
           Continue to payment
-        </button>
+        </Button>
       </section>
     </>
   );
@@ -530,8 +555,8 @@ function App() {
             item.highlights != null
               ? [...item.highlights]
               : defaultItem.highlights
-                ? [...defaultItem.highlights]
-                : undefined,
+              ? [...defaultItem.highlights]
+              : undefined,
         };
 
         return cloneCartItem(enriched);
@@ -1143,17 +1168,19 @@ function App() {
         <header className="mb-4 flex flex-col gap-3 border-b border-black/5 px-0 pb-3 sm:flex-row sm:items-center sm:justify-between">
           {!isFullscreen ? (
             <div className="flex items-center gap-3">
-              <button
+              <Button
                 type="button"
                 onClick={(event) =>
                   openCartModal(event.currentTarget as HTMLElement)
                 }
                 aria-haspopup="dialog"
-                className="flex items-center gap-2 rounded-full border border-black/10 px-3 py-1.5 text-sm font-medium text-black/70 transition-colors hover:border-black/40 hover:text-black"
+                variant="outline"
+                color="secondary"
+                size="sm"
               >
                 <ShoppingCart className="h-4 w-4" aria-hidden="true" />
                 <span>Cart</span>
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="text-lg text-black/70">Results</div>
@@ -1166,20 +1193,17 @@ function App() {
                   : activeFilters.includes(filter.id);
 
               return (
-                <button
+                <Button
                   key={filter.id}
                   type="button"
                   onClick={() => handleFilterToggle(filter.id)}
                   aria-pressed={isActive}
-                  className={clsx(
-                    "rounded-full border px-3 py-1.25 text-sm font-medium transition-colors",
-                    isActive
-                      ? "border-black bg-black text-white shadow-sm hover:border-black hover:bg-black/90"
-                      : "border-black/10 text-black/70 hover:border-black/40 hover:text-black"
-                  )}
+                  variant={isActive ? "solid" : "outline"}
+                  color="primary"
+                  size="sm"
                 >
                   {filter.label}
-                </button>
+                </Button>
               );
             })}
           </nav>
@@ -1246,7 +1270,7 @@ function App() {
                       !isSingle && !isLeft && !isRight && "rounded-none"
                     )}
                   >
-                    <img
+                    <Image
                       src={item.image}
                       alt={item.name}
                       className="h-60 w-full object-cover transition-transform duration-200"
@@ -1330,7 +1354,7 @@ function App() {
               >
                 <div className="relative h-10 w-10 overflow-hidden rounded-xl bg-white">
                   {item.image ? (
-                    <img
+                    <Image
                       src={item.image}
                       alt={item.name}
                       className="h-full w-full object-cover"

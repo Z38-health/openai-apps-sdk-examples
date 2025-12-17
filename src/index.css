@@ -3,10 +3,6 @@
 @source "../node_modules/@openai/apps-sdk-ui";
 @source ".";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @layer utilities {
   .overflow-auto > *,
   .overflow-scroll > *,

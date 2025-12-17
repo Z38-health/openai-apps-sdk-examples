@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-This repository showcases example UI components to be used with the Apps SDK, as well as example MCP servers that expose a collection of components as tools.
+This repository showcases example UI components to be used with the [Apps SDK](https://developers.openai.com/apps-sdk), as well as example MCP servers that expose a collection of components as tools.
 It is meant to be used as a starting point and source of inspiration to build your own apps for ChatGPT.
 
 Note: If you are on Chrome and have recently updated to version 142, you will need to disable the [`local-network-access` flag](https://developer.chrome.com/release-notes/142#local_network_access_restrictions) to see the widget UI.
@@ -41,6 +41,12 @@ The MCP servers in this demo highlight how each tool can light up widgets by com
 - `kitchen_sink_server_python/` – Python MCP server for the kitchen-sink-lite widget.
 - `authenticated_server_python/` – Python MCP server that demonstrates authenticated tool calls.
 - `build-all.mts` – Vite build orchestrator that produces hashed bundles for every widget entrypoint.
+
+### Pizzaz overview
+
+This example contains multiple components showing multiple types of views and interactions: a list view, a carousel view, a map view. It also contains a "pizzaz shop" showing interactive flows and a checkout page.
+
+This example uses the [Apps SDK UI library](https://github.com/openai/apps-sdk-ui) for simple components such as images, buttons, and badges.
 
 ### Kitchen sink lite overview
 

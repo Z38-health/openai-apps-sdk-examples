@@ -2,6 +2,8 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import markers from "../pizzaz/markers.json";
 import { PlusCircle, Star } from "lucide-react";
+import { Button } from "@openai/apps-sdk-ui/components/Button";
+import { Image } from "@openai/apps-sdk-ui/components/Image";
 
 function App() {
   const places = markers?.places || [];
@@ -26,12 +28,9 @@ function App() {
             </div>
           </div>
           <div className="flex-auto hidden sm:flex justify-end pr-2">
-            <button
-              type="button"
-              className="cursor-pointer inline-flex items-center rounded-full bg-[#F46C21] text-white px-4 py-1.5 sm:text-md text-sm font-medium hover:opacity-90 active:opacity-100"
-            >
+            <Button color="primary" variant="solid" size="md">
               Save List
-            </button>
+            </Button>
           </div>
         </div>
         <div className="min-w-full text-sm flex flex-col">
@@ -49,7 +48,7 @@ function App() {
               >
                 <div className="py-3 pr-3 min-w-0 w-full sm:w-3/5">
                   <div className="flex items-center gap-3">
-                    <img
+                    <Image
                       src={place.thumbnail}
                       alt={place.name}
                       className="h-10 w-10 sm:h-11 sm:w-11 rounded-lg object-cover ring ring-black/5"
@@ -84,7 +83,15 @@ function App() {
                   {place.city || "–"}
                 </div>
                 <div className="py-2 whitespace-nowrap flex justify-end">
-                  <PlusCircle strokeWidth={1.5} className="h-5 w-5" />
+                  <Button
+                    aria-label={`Add ${place.name}`}
+                    color="secondary"
+                    variant="ghost"
+                    size="sm"
+                    uniform
+                  >
+                    <PlusCircle strokeWidth={1.5} className="h-5 w-5" />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -96,12 +103,9 @@ function App() {
           )}
         </div>
         <div className="sm:hidden px-0 pt-2 pb-2">
-          <button
-            type="button"
-            className="w-full cursor-pointer inline-flex items-center justify-center rounded-full bg-[#F46C21] text-white px-4 py-2 font-medium hover:opacity-90 active:opacity-100"
-          >
+          <Button color="primary" variant="solid" size="md" block>
             Save List
-          </button>
+          </Button>
         </div>
       </div>
     </div>

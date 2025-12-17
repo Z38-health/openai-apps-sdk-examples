@@ -1,8 +1,10 @@
 import React from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useOpenAiGlobal } from "../use-openai-global";
-import { Filter, Settings2, Star } from "lucide-react";
+import { Settings2, Star } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Button } from "@openai/apps-sdk-ui/components/Button";
+import { Image } from "@openai/apps-sdk-ui/components/Image";
 
 function PlaceListItem({ place, isSelected, onClick }) {
   return (
@@ -17,16 +19,16 @@ function PlaceListItem({ place, isSelected, onClick }) {
           isSelected ? "border-black/0" : "border-black/5"
         } hover:border-black/0`}
       >
-        <button
-          className="w-full text-left py-3 transition flex gap-3 items-center"
+        <div
+          className="w-full text-left py-3 transition flex gap-3 items-center cursor-pointer"
           onClick={onClick}
         >
-          <img
+          <Image
             src={place.thumbnail}
             alt={place.name}
             className="h-16 w-16 rounded-lg object-cover flex-none"
           />
-          <div className="min-w-0">
+          <div className="min-w-0 text-left">
             <div className="font-medium truncate">{place.name}</div>
             <div className="text-xs text-black/50 truncate">
               {place.description}
@@ -37,7 +39,7 @@ function PlaceListItem({ place, isSelected, onClick }) {
               {place.price ? <span className="">· {place.price}</span> : null}
             </div>
           </div>
-        </button>
+        </div>
       </div>
     </div>
   );
@@ -86,9 +88,15 @@ export default function Sidebar({ places, selectedId, onSelect }) {
         >
           <div className="flex justify-between flex-row items-center px-3 sticky bg-white top-0 py-4 text-md font-medium">
             {places.length} results
-            <div>
+            <Button
+              variant="ghost"
+              color="secondary"
+              size="sm"
+              uniform
+              aria-label="Filter"
+            >
               <Settings2 className="h-5 w-5" aria-hidden="true" />
-            </div>
+            </Button>
           </div>
           <div>
             {places.map((place) => (
