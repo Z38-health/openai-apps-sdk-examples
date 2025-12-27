@@ -223,6 +223,20 @@ BASE_URL=https://your-server.com
 
 This will be used to generate the HTML for the widgets so that they can serve static assets from this hosted url.
 
+### Deploy to Render
+
+This repo includes a Render Blueprint at `render.yaml`.
+
+1. Create a new Render **Web Service** from this repo (or “Blueprint” if you use Blueprints).
+2. Deploy.
+3. After the first deploy, set the env var:
+
+```
+BASE_URL=https://<your-render-service>.onrender.com
+```
+
+4. Redeploy (or restart) so widget HTML is generated with absolute asset URLs.
+
 ## Contributing
 
 You are welcome to open issues or submit PRs to improve this app, however, please note that we may not review all suggestions.

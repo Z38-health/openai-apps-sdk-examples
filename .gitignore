@@ -36,3 +36,8 @@ __pycache__/
 
 # Ruff
 .ruff_cache/
+
+# Local dev caches / tunnels
+.cache/
+.tunnels/
+*.pid

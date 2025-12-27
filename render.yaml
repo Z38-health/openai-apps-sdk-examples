@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: pizzaz-mcp
+    env: node
+    plan: starter
+    rootDir: .
+    buildCommand: >
+      corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm run build
+    startCommand: pnpm --filter pizzaz-mcp-node start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Set this AFTER the first deploy to your public Render URL, e.g.
+      # https://pizzaz-mcp.onrender.com
+      - key: BASE_URL
+        sync: false
+
